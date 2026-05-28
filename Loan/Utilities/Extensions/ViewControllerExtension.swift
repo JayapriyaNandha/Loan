@@ -1,0 +1,17 @@
+//
+//  ViewControllerExtension.swift
+//  Loan
+//
+//  Created by JayaKoushik on 27/05/26.
+//
+
+import UIKit
+
+extension UIViewController {
+    func showAlert(title: String = "Alert", message: String) {
+        let alert = UIAlertController(title: title, message: message, preferredStyle: .alert)
+        alert.addAction(UIAlertAction(title: "OK", style: .default))
+        present(alert, animated: true)
+    }
+}
+

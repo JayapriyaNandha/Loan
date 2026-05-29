@@ -1,21 +1,24 @@
-//
-//  PersonalViewController.swift
-//  Loan
-//
-//  Created by JayaKoushik on 27/05/26.
-//
+/*
+ Screen 1: Personal Information
+ ○ Fields:
+ ■ Full Name (TextField)
+ ■ Email Address (TextField with email validation)
+ ■ Phone Number (TextField with number validation)
+ ■ Gender (TextField with PickerView)
+ ■ Address (TextField-Optional)
+ ○ Next Step: Proceed to the next screen after validating that all required fields are
+ filled and valid.
+ */
 
 import UIKit
 
 class PersonalViewController: UIViewController {
-
-    @IBOutlet weak var nameTextField: UITextField!
     
+    @IBOutlet weak var nameTextField: UITextField!
     @IBOutlet weak var addressTextField: UITextField!
     @IBOutlet weak var phoneNumberTextField: UITextField!
     @IBOutlet weak var emailTextField: UITextField!
     @IBOutlet weak var genderTextField: UITextField!
-    
     @IBOutlet weak var phoneError: UILabel!
     @IBOutlet weak var emailError: UILabel!
     @IBOutlet weak var nameError: UILabel!
@@ -24,8 +27,7 @@ class PersonalViewController: UIViewController {
     private let genderPicker = UIPickerView()
     
     private lazy var orderedFields: [UITextField] = [nameTextField, emailTextField, phoneNumberTextField, addressTextField]
-    var viewModel = PersonalInfoVM()
-    
+    var viewModel : LoanViewModel?
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -33,19 +35,18 @@ class PersonalViewController: UIViewController {
         dismissKeyBoard()
         textFieldReturnKeySetup()
         pickerSetup()
+        if viewModel?.isDraft == true {
+            preFillTextField()
+        }
     }
     
     func pickerSetup() {
-        genderTextField.setPicker(items: viewModel.pickerItem, target: self, selector: #selector(donePressed))
+        genderTextField.setPicker(items: viewModel?.pickerItem ?? [""], target: self, selector: #selector(donePressed))
         genderTextField.inputView = genderPicker
         if let picker = genderTextField.inputView as? UIPickerView {
             picker.delegate = self
             picker.dataSource = self
         }
-    }
-    
-    func dismissKeyBoard() {
-        self.view.endEditing(true)
     }
     
     func textFieldReturnKeySetup() {
@@ -55,9 +56,19 @@ class PersonalViewController: UIViewController {
         }
     }
     
+    func preFillTextField() {
+        if let name = viewModel?.fullName, name.count > 0, let email = viewModel?.email, email.count > 0, let gender = viewModel?.gender, gender.count > 0, let phone = viewModel?.phone, phone.count > 0 {
+            nameTextField.text = name
+            emailTextField.text = email
+            phoneNumberTextField.text = phone
+            genderTextField.text = gender
+            addressTextField.text = viewModel?.address ?? ""
+        }
+    }
+    
     @objc func donePressed() {
         if genderTextField.text == "" {
-            genderTextField.text = viewModel.pickerItem.first
+            genderTextField.text = viewModel?.pickerItem.first ?? ""
         }
         view.endEditing(true)
     }
@@ -71,12 +82,12 @@ class PersonalViewController: UIViewController {
         }
     }
     
-    @IBAction func resumeButtonEvent(_ sender: Any) {
-    }
-    
     func isTextFieldDataValid() -> Bool {
-        viewModel.assignPersonalInfo(nameTextField.text, emailTextField.text, phoneNumberTextField.text, genderTextField.text, addressTextField.text)
-        let result = viewModel.isPersonalValid()
+        hideError()
+        viewModel?.assignPersonalInfo(nameTextField.text, emailTextField.text, phoneNumberTextField.text, genderTextField.text, addressTextField.text)
+        guard let result = viewModel?.isPersonalValid() else {
+            return false
+        }
         for each in result.1 {
             switch each {
             case TextFieldError.name.rawValue : nameError.isHidden = false
@@ -84,11 +95,15 @@ class PersonalViewController: UIViewController {
             case TextFieldError.phone.rawValue : phoneError.isHidden = false
             case TextFieldError.gender.rawValue :
                 showAlert(message:Alert.selectGender.rawValue)
-            default:
-                break
+            default:break
             }
         }
         return result.0
+    }
+    func hideError() {
+        nameError.isHidden = true
+        emailError.isHidden = true
+        phoneError.isHidden = true
     }
 }
 // MARK: - TextField Delegate
@@ -115,14 +130,14 @@ extension PersonalViewController : UIPickerViewDelegate, UIPickerViewDataSource 
     }
     
     func pickerView(_ pickerView: UIPickerView, numberOfRowsInComponent component: Int) -> Int {
-        return viewModel.pickerItem.count
+        return viewModel?.pickerItem.count ?? 0
     }
     
     func pickerView(_ pickerView: UIPickerView, titleForRow row: Int, forComponent component: Int) -> String? {
-        return viewModel.pickerItem[row]
+        return viewModel?.pickerItem[row]
     }
     
     func pickerView(_ pickerView: UIPickerView, didSelectRow row: Int, inComponent component: Int) {
-        genderTextField.text = viewModel.pickerItem[row]
+        genderTextField.text = viewModel?.pickerItem[row]
     }
 }

@@ -6,22 +6,15 @@
 //
 import Foundation
 
-struct FormData : Codable {
-    var personal: PersonalData
-    var financial: FinancialData
-}
-
-struct PersonalData : Codable {
+struct FormData : Codable, Identifiable {
+    var id: UUID = UUID()
     var name: String
     var email: String
     var phone: String
     var gender: String
     var address: String
-}
-
-struct FinancialData : Codable {
-    var salary: Double
-    var loan: Double
-    var ird: String
+    var annualIncome: String
+    var loanAmount: String
+    var irdNumber: String
     let submittedAt: Date
 }

@@ -1,9 +1,12 @@
-//
-//  FinancialViewController.swift
-//  Loan
-//
-//  Created by JayaKoushik on 27/05/26.
-//
+/*
+ Screen 2: Financial Information
+ ○ Fields:
+ ■ Annual Income (TextField with number validation)
+ ■ Desired Loan Amount (TextField with number validation)
+ ■ IRD Number (TextField with number validation)
+ ○ Next Step: After validating income and loan amount (e.g., loan amount cannot
+ exceed 50% of annual income), proceed to the next screen.
+ */
 
 import UIKit
 
@@ -12,23 +15,20 @@ class FinancialViewController: UIViewController {
     @IBOutlet weak var incomeTextField: UITextField!
     @IBOutlet weak var irdTextField: UITextField!
     @IBOutlet weak var loanTextField: UITextField!
-    var viewModel : PersonalInfoVM?
+    var viewModel : LoanViewModel?
     
     override func viewDidLoad() {
         super.viewDidLoad()
         self.title = ScreenName.financialInfo.rawValue
+        dismissKeyBoard()
         prefillData()
         // Do any additional setup after loading the view.
     }
-
-    func prefillData() {
-        if viewModel?.annualIncome != nil {
-            DispatchQueue.main.async {
-                self.incomeTextField.text = self.viewModel?.annualIncome
-                self.loanTextField.text = self.viewModel?.loanAmount
-                self.irdTextField.text = self.viewModel?.irdNumber
-            }
-        }
+    
+    @IBAction func saveEvent(_ sender: Any) {
+        assignData()
+        viewModel?.resumeFormFilling()
+        navigationController?.popToRootViewController(animated: true)
     }
     
     @IBAction func nextEvent(_ sender: Any) {
@@ -41,13 +41,19 @@ class FinancialViewController: UIViewController {
     }
     
     func isTextFieldDataValid() -> Bool {
-        viewModel?.annualIncome = incomeTextField.text ?? ""
-        viewModel?.loanAmount = loanTextField.text ?? ""
-        viewModel?.irdNumber = irdTextField.text ?? ""
+        assignData()
         if let result = viewModel?.validateFinancial() {
             showAlert(title: Alert.error.rawValue, message: result)
             return false
         }
         return true
+    }
+    func assignData() {
+        viewModel?.assignFinancialInfo(incomeTextField.text, loanTextField.text, irdTextField.text)
+    }
+    func prefillData() {
+        self.incomeTextField.text = self.viewModel?.annualIncome ?? ""
+        self.loanTextField.text = self.viewModel?.loanAmount ?? ""
+        self.irdTextField.text = self.viewModel?.irdNumber ?? ""
     }
 }

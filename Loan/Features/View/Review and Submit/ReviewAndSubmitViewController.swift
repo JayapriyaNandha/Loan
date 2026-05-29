@@ -1,17 +1,20 @@
-//
-//  ReviewAndSubmitViewController.swift
-//  Loan
-//
-//  Created by JayaKoushik on 27/05/26.
-//
+/*
+ Screen 3: Review and Submit
+ ○ Fields:
+ ■ Display a summary of the personal and financial information entered.
+ ○ Actions:
+ ■ Provide buttons to Edit (to go back and edit details on the previous
+ screens) or Submit the form.
+ ■ Upon submission, save the form locally and show a success message.
+ */
 
 import UIKit
 
 class ReviewAndSubmitViewController: UIViewController {
-
+    
     @IBOutlet weak var reviewLabel: UILabel!
-//    private var viewModel = ReviewVM()
-    var viewModel : PersonalInfoVM?
+    var viewModel : LoanViewModel?
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         self.title = ScreenName.reviewAndSubmit.rawValue
@@ -30,9 +33,9 @@ class ReviewAndSubmitViewController: UIViewController {
                 
                 Financial Information
                 
-                  Annual Income: \(viewModel?.annualIncome ?? "")
+                  Annual Income: $\(viewModel?.annualIncome ?? "")
                 
-                  Desired Loan Amount: \(viewModel?.loanAmount ?? "") 
+                  Desired Loan Amount: $\(viewModel?.loanAmount ?? "") 
                 
                   IRD Number: \(viewModel?.irdNumber ?? "")
                 """
@@ -40,24 +43,19 @@ class ReviewAndSubmitViewController: UIViewController {
     }
     
     @IBAction func submitEvent(_ sender: Any) {
+        if viewModel?.isDraft == true {
+            viewModel?.isDraft = false
+            // user default clearing - draft
+            viewModel?.clearDataFromUserDefaults()
+        }
+        // core data saving
+        DispatchQueue.main.async {
+            self.viewModel?.saveForm()
+        }
         successAlert()
     }
     
     @IBAction func editEvent(_ sender: Any) {
-        if let personalVC = navigationController?.viewControllers.first(where: { $0 is PersonalViewController }) {
-            navigationController?.popToViewController(personalVC, animated: true)
-        }
-    }
-    
-    func successAlert() {
-        let alert = UIAlertController(
-            title: "Success",
-            message: "Your loan application has been submitted.",
-            preferredStyle: .alert
-        )
-        alert.addAction(UIAlertAction(title: "OK", style: .default) { [weak self] _ in
-            self?.navigationController?.popToRootViewController(animated: true)
-        })
-        present(alert, animated: true)
+        self.navigationController?.popViewController(animated: true)
     }
 }

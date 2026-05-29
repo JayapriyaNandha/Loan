@@ -9,6 +9,7 @@ enum ScreenName : String {
     case personalInfo = "Personal Information"
     case financialInfo = "Financial Information"
     case reviewAndSubmit = "Review and Submit"
+    case applied = "Loan Applied"
 }
 enum Gender : String {
     case male = "Male"
@@ -30,14 +31,20 @@ enum FinancialInfoTextFieldError : String {
     case loanAmount = "Please enter a valid desired loan amount."
     case loanLimit = "Loan amount cannot exceed 50% of annual income."
     case irdNumber = "Please enter a valid IRD number."
+    case newLoan = "Please proceed with new loan application"
 }
 enum Alert : String {
     case error = "Error"
     case selectGender = "Please select Gender"
+    case success = "Success"
+    case applicationSuccess = "Your loan application has been submitted."
+    case ok = "OK"
+    case alert = "Alert"
 }
 enum ViewControllerTitle : String {
     case bundelName = "Main"
     case personalInfoVc = "PersonalViewController"
     case financialInfoVc = "FinancialViewController"
     case reviewVc = "ReviewAndSubmitViewController"
+    case appliedVC = "AppliedViewController"
 }
